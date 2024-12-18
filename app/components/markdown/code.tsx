@@ -22,17 +22,11 @@ export default function Code (props: CodeProps) {
 
   if (props.className) {
     return (
-      <div style={{backgroundColor: "rgb(40,40,40)", padding: "1em"}}>
-        <div style={{ display: 'flex' }}>
+      <div className='bg-[#2e3440] p-4 my-3 text-white'>
+        <div className='flex'>
           <span style={{ flexGrow: 1 }}></span>
           <button
-            style={{
-              border: 'none',
-              backgroundColor: 'transparent',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '1.3em'              
-            }}
+            className='border-none bg-transparent  cursor-pointer text-xl'
             onClick={() => {
               navigator.clipboard.writeText(props.children as string)
             }}
@@ -41,20 +35,19 @@ export default function Code (props: CodeProps) {
           </button>
         </div>
 
-        <code className={props.className} ref={ref} style={{backgroundColor: 'inherit'}}>
+        <code className={`${props.className} p-2  block w-full overflow-x-scroll`} ref={ref}>
           {props.children}
         </code>
       </div>
     )
   } else {
-    return <code className={props.className} ref={ref} style={{
-        // opacity: "60%",
-        fontWeight:"bold",
-        background: "rgb(220,220,220)",
-        padding: "0 0.4em",
-        borderRadius: "0.3em"
-    }}>
-      {props.children}
-    </code>
+    return (
+      <code
+        className={`${props.className} font-bold bg-gray-200 px-1 rounded-sm`}
+        ref={ref}        
+      >
+        {props.children}
+      </code>
+    )
   }
 }

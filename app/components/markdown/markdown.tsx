@@ -16,6 +16,7 @@ const sanitize = (html: string) => {
         pre: []
     }
   });
+  // return html
 };
 
 const options = {
