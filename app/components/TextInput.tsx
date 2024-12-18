@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Message } from "./MsgTypes";
 import { getChat } from "@/utils/llm";
 import { LLM } from "@/utils/ai_providers";
+import SendIcon from "./icons/send_icon";
+import MicIcon from "./icons/mic_icon";
+import SoundWavesIcon from "./icons/soundwave_icon";
 
 export default function TextInput({
   appendMsg,
@@ -16,6 +19,11 @@ export default function TextInput({
 }) {
   const [msg, setMsg]: [string, any] = useState("");
   const [validMsg, setValidMsg]: [boolean, any] = useState(false);
+  const [recording, setRecording] = useState<boolean>(false);
+  const [playing, setPlaying] = useState<boolean>(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+
   const clearMsg = (e: any) => {
     setMsg("");
     e.target.value = "";
@@ -48,33 +56,76 @@ export default function TextInput({
     }
   };
 
+  const startRecording = async () => {
+    try {
+      // Connect to WebSocket server
+      //
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host;
+      const url = `${protocol}//${"localhost:3001"}/api/audio`;
+      socketRef.current = new WebSocket(url);
+
+      // Wait for WebSocket to open
+      socketRef.current.onopen = () => {
+        console.log("WebSocket connected");
+      };
+
+      // Get user's audio stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+      mediaRecorderRef.current = mediaRecorder;
+
+      // Send audio chunks to server as soon as they're available
+      mediaRecorder.ondataavailable = (event) => {
+        if (
+          event.data.size > 0 &&
+          socketRef.current?.readyState === WebSocket.OPEN
+        ) {
+          socketRef.current.send(event.data);
+        }
+      };
+      // Start recording
+      mediaRecorder.start(100); // Send chunks every 100ms
+      setRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+    }
+  };
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+    setRecording(false);
+  };
+
   return (
     <div id="msgbox" className="w-full flex py-1 space-x-1 max-w-[800px]">
-      <textarea
-        className="h-fit w-full border border-gray-400 rounded-full px-5 leading-4 pt-4 resize-none outline-none"
-        onKeyUp={updateMsg}
-        placeholder="Message ChatGPT (ish)"
-      ></textarea>
+      <div className="w-full flex flex-grow border border-gray-400 rounded-full px-5">
+        <textarea
+          className="h-fit w-full  leading-4 pt-4 resize-none outline-none"
+          onKeyUp={updateMsg}
+          placeholder="Message ChatGPT (ish)"
+        ></textarea>
+        <button
+          className={`text-xl ${recording ? "text-red-700" : ""}`}
+          onClick={recording ? stopRecording : startRecording}
+        >
+          {!playing && <MicIcon />}
+          {playing && <SoundWavesIcon />}
+        </button>
+      </div>
       <button
         className="text-[3em] text-white bg-black rounded-full cursor-pointer  disabled:bg-gray-500 disabled:cursor-auto"
         id="send"
         disabled={!validMsg}
         onClick={send}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="1em"
-          height="1em"
-          fill="none"
-          viewBox="0 0 32 32"
-        >
-          <path
-            fill="currentColor"
-            fillRule="evenodd"
-            d="M15.192 8.906a1.143 1.143 0 0 1 1.616 0l5.143 5.143a1.143 1.143 0 0 1-1.616 1.616l-3.192-3.192v9.813a1.143 1.143 0 0 1-2.286 0v-9.813l-3.192 3.192a1.143 1.143 0 1 1-1.616-1.616z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
+        <SendIcon />
       </button>
     </div>
   );
