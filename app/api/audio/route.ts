@@ -1,6 +1,16 @@
 import { WebSocketServer } from "ws";
+import * as speech from '@google-cloud/speech'
+import { NextResponse } from "next/server";
+
+
+
+const speechClient = new speech.SpeechClient();
 
 let wss; // Singleton WebSocket server instance
+
+
+
+
 
 export async function GET(req, res) {
   if (!wss) {
@@ -9,16 +19,45 @@ export async function GET(req, res) {
     // Attach WebSocket server to Next.js server
     wss = new WebSocketServer({ port: 3001 });
 
+  
     wss.on("connection", (ws) => {
       console.log("WebSocket connection established");
 
-      ws.on("message", (message) => {
-        console.log("Received message:", message);
-        // Handle incoming data (e.g., save audio chunks)
+      const sstReader = speechClient.streamingRecognize({
+        config: {
+          encoding: 'WEBM_OPUS',
+          sampleRateHertz: 48000,
+          languageCode: 'en-US',
+        },
+        interimResults: true,
+      })
+        .on('error', (error) => {
+          console.error("Speech API error:", error);
+          ws.close();
+        })
+        .on('data', (data) => {
+          console.log('something has come back!')          
+          const validResults = data.results &&
+            data.results.length > 0 &&
+            data.results[0].alternatives &&
+            data.results[0].alternatives.length > 0
+          if (validResults) {
+            const transcript = data.results[0].alternatives[0].transcript;
+            console.log(transcript)
+            // ws.send(JSON.stringify({ transcript })); 
+          }
+        });
+
+      ws.on("message", (message: Buffer) => {
+        // console.log("Received message:", message);
+        // console.log('i receive')
+        sstReader.write(message)
+
       });
 
       ws.on("close", () => {
         console.log("WebSocket connection closed");
+        sstReader.destroy()
       });
     });
 
@@ -35,5 +74,5 @@ export async function GET(req, res) {
     console.log("WebSocket server already running");
   }
 
-  res.status(200).end();
+  return NextResponse.json({ msg: 'success' })
 }

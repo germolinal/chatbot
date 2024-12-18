@@ -41,10 +41,11 @@ export default function TextInput({
       origin: "user",
       msg: txt,
     });
+    clearMsg(e);
+
     let res = await getChat(llm, context, txt, history);
     appendMsg(res);
 
-    clearMsg(e);
   };
 
   const updateMsg = (e: any) => {

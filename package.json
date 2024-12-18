@@ -9,13 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/speech": "^6.7.0",
     "@google/generative-ai": "^0.21.0",
     "markdown-to-jsx": "^7.7.1",
     "next": "15.1.0",
     "openai": "^4.76.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "@types/node": "^20",

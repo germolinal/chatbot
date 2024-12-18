@@ -43,7 +43,7 @@ export default function Code (props: CodeProps) {
   } else {
     return (
       <code
-        className={`${props.className} font-bold bg-gray-200 px-1 rounded-sm`}
+        className="font-bold bg-gray-200 px-1 rounded-sm max-w-full overflow-x-scroll"
         ref={ref}        
       >
         {props.children}
