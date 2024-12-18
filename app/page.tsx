@@ -9,8 +9,10 @@ import NoMessages from "./components/NoMessages";
 
 const DEFAULT_CONTEXT = "You are a helpful assistant";
 
+const INITIAL_MSGS : Message[] = []
+
 export default function Home() {
-  const [msgs, setMsgs] = useState<Message[]>([]);
+  const [msgs, setMsgs] = useState<Message[]>(INITIAL_MSGS);
   const [context, setContext] = useState<string>("You are a helpful assistant");
   const [llm, setLLM] = useState<LLM>(llms[0]);
 
@@ -34,7 +36,7 @@ export default function Home() {
       {/* These two  objects should occupy all the vertical screen left...
           but they grow too much vertically.
           They are supposed to allow scrolling inside them*/}
-      <div className="flex-grow overflow-y-scroll max-w-[800px]">
+      <div className="flex-grow overflow-y-scroll w-full max-w-[800px]">
         {msgs.length > 0 && <MessagesBox msgs={msgs} />}
         {msgs.length === 0 && (
           <NoMessages llm={llm} context={context} appendMsg={appendMsg} />
