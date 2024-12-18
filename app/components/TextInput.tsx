@@ -62,6 +62,8 @@ export default function TextInput({
       //
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const host = window.location.host;
+      console.log(host);
+      // The port has to be different from the standard one...
       const url = `${protocol}//${"localhost:3001"}/api/audio`;
       socketRef.current = new WebSocket(url);
 
