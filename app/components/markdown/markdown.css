@@ -61,7 +61,7 @@ div.markdown-render td {
 }
 
 div.markdown-render a {
-  color: var(--accent);
+  color: green;
   text-decoration: none;
   font-weight: bold;
 }

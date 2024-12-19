@@ -9,8 +9,7 @@ import NoMessages from './components/NoMessages'
 
 const DEFAULT_CONTEXT = 'You are a helpful assistant'
 
-const INITIAL_MSGS: Message[] = [
-  
+const INITIAL_MSGS: Message[] = [  
 ]
 
 export default function Home () {
@@ -23,7 +22,7 @@ export default function Home () {
   }
 
   return (
-    <main className='h-full max-h-full flex flex-col items-center w-full bg-white'>
+    <main className='h-full max-h-full flex flex-col items-center w-full bg-white px-2'>
       <Topbar setLLM={setLLM} />
       {/* CONTEXT should be at the top of the screen*/}
       <textarea
