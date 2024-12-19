@@ -1,25 +1,26 @@
 import { WebSocketServer } from "ws";
 import * as speech from '@google-cloud/speech'
 import { NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from "next";
 
 
 
 const speechClient = new speech.SpeechClient();
 
-let wss; // Singleton WebSocket server instance
+let wss: WebSocketServer; // Singleton WebSocket server instance
 
 
 
 
 
-export async function GET(req, res) {
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!wss) {
     console.log("Initializing WebSocket server...");
 
     // Attach WebSocket server to Next.js server
     wss = new WebSocketServer({ port: 3001 });
 
-  
+
     wss.on("connection", (ws) => {
       console.log("WebSocket connection established");
 
@@ -28,6 +29,7 @@ export async function GET(req, res) {
           encoding: 'WEBM_OPUS',
           sampleRateHertz: 48000,
           languageCode: 'en-US',
+          // alternativeLanguageCodes: ['en-US', 'es', 'es-CL']
         },
         interimResults: true,
       })
@@ -36,21 +38,19 @@ export async function GET(req, res) {
           ws.close();
         })
         .on('data', (data) => {
-          console.log('something has come back!')          
           const validResults = data.results &&
             data.results.length > 0 &&
             data.results[0].alternatives &&
             data.results[0].alternatives.length > 0
           if (validResults) {
+            const language = data.results[0].languageCode            
             const transcript = data.results[0].alternatives[0].transcript;
-            console.log(transcript)
-            // ws.send(JSON.stringify({ transcript })); 
+            console.log(language, transcript)
+            // ws.send(transcript);
           }
         });
 
-      ws.on("message", (message: Buffer) => {
-        // console.log("Received message:", message);
-        // console.log('i receive')
+      ws.on("message", (message: Buffer) => {   
         sstReader.write(message)
 
       });
