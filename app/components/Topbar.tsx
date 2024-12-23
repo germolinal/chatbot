@@ -1,6 +1,6 @@
 // "use client";
 
-import { LLM, llms } from "@/utils/ai_providers";
+import { LLM, llms } from "@/types/ai_providers";
 
 export default function Topbar({ setLLM }: { setLLM: (m: LLM) => void }) {
   return (

@@ -1,3 +1,4 @@
+"server-only";
 import { WebSocketServer } from "ws";
 import * as speech from '@google-cloud/speech'
 import { NextResponse } from "next/server";

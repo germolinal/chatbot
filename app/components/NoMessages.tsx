@@ -1,7 +1,6 @@
-import { getChat } from "@/utils/llm"; // I need this to run on backend
 import { useEffect, useState } from "react";
-import { Message } from "./MsgTypes";
-import { LLM } from "@/utils/ai_providers";
+import { Message } from "../../types/messages";
+import { LLM } from "@/types/ai_providers";
 const prompts = [
   "What colour is the sun?",
   "42 is the answer to life, the universe and everything. Why?",
@@ -54,8 +53,15 @@ export default function NoMessages({
                   origin: "user",
                   msg: p,
                 });
-                getChat(llm, context, p, []).then((res: Message) => {
-                  appendMsg(res);
+                fetch("/api/chat",{
+                  method: "POST",
+                  body: JSON.stringify({llm, context, txt: p, history: []})
+                }).then(async (res: any) => {
+                  if(!res.ok){
+                    throw new Error(JSON.stringify(res))
+                  }
+                  let response: Message = await res.json();
+                  appendMsg(response)                  
                 });
               }}
             >

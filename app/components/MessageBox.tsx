@@ -1,4 +1,4 @@
-import { Message } from "./MsgTypes";
+import { Message } from "../../types/messages";
 import Markdown from "./markdown/markdown";
 
 function UserMsg({ msg }: { msg: string }) {
