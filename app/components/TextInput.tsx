@@ -73,7 +73,7 @@ export default function TextInput ({
           onKeyUp={updateMsg}
           placeholder='Message ChatGPT (ish)'
         ></textarea>
-        <AudioInput />
+        <AudioInput appendMsg={appendMsg} />
       </div>
       <button
         className='text-[3em] text-white bg-black rounded-full cursor-pointer  disabled:bg-gray-500 disabled:cursor-auto'

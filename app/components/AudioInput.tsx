@@ -1,9 +1,13 @@
-
 import { useEffect, useRef, useState } from 'react'
 import MicIcon from './icons/mic_icon'
 import SoundWavesIcon from './icons/soundwave_icon'
+import { Message } from '@/types/messages'
 
-export default function AudioInput () {
+export default function AudioInput ({
+  appendMsg
+}: {
+  appendMsg: (m: Message) => void
+}) {
   const [recording, setRecording] = useState<boolean>(false)
   const [playing, setPlaying] = useState<boolean>(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -37,6 +41,11 @@ export default function AudioInput () {
       // Wait for WebSocket to open
       socketRef.current.onopen = () => {
         console.log('WebSocket connected')
+      }
+
+      socketRef.current.onmessage = (e: any) => {
+        const msg: Message = JSON.parse(e.data)
+        appendMsg(msg)
       }
 
       // Get user's audio stream

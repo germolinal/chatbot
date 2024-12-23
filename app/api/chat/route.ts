@@ -4,7 +4,6 @@ import { Message } from "../../../types/messages";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 import { LLM, AI_platform, llm_providers } from "../../../types/ai_providers";
 import { NextResponse } from "next/server";
-import { HTTP_METHODS } from "next/dist/server/web/http";
 
 
 function getPlatform(llm: LLM): AI_platform {
@@ -73,7 +72,7 @@ async function openAIChat(
     }, { status: 200 });
 }
 
-async function getChat(
+export async function getChat(
     llm: LLM,
     context: string,
     txt: string,
