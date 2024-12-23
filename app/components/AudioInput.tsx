@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+
+import { useEffect, useRef, useState } from 'react'
 import MicIcon from './icons/mic_icon'
 import SoundWavesIcon from './icons/soundwave_icon'
 
@@ -7,7 +8,20 @@ export default function AudioInput () {
   const [playing, setPlaying] = useState<boolean>(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
-  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
+      if (audioStream) {
+        const tracks = audioStream.getTracks()
+        tracks.forEach(track => track.stop())
+        setAudioStream(null)
+      }
+    }
+  }, [])
 
   const startRecording = async () => {
     try {
@@ -27,7 +41,7 @@ export default function AudioInput () {
 
       // Get user's audio stream
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      setAudioStream(stream);
+      setAudioStream(stream)
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm'
@@ -44,7 +58,7 @@ export default function AudioInput () {
         }
       }
       // Start recording
-      mediaRecorder.start(100) // Send chunks every 100ms
+      mediaRecorder.start(20) // Send chunks every 100ms
       setRecording(true)
     } catch (err) {
       console.error('Error accessing microphone:', err)

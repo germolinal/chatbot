@@ -29,9 +29,10 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
           encoding: 'WEBM_OPUS',
           sampleRateHertz: 48000,
           languageCode: 'en-US',
-          // alternativeLanguageCodes: ['en-US', 'es', 'es-CL']
+          alternativeLanguageCodes: ['en-US', 'es', 'es-CL']
         },
-        interimResults: true,
+        interimResults: false,
+        singleUtterance: false,
       })
         .on('error', (error) => {
           console.error("Speech API error:", error);
@@ -56,11 +57,13 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
       });
 
       ws.on("close", () => {
-        console.log("WebSocket connection closed");
+        console.log("WebSocket connection closed...");
         sstReader.destroy()
+        console.log('closing!')        
       });
     });
 
+    // @ts-ignore
     res?.socket?.server.on("upgrade", (request, socket, head) => {
       if (request.url === "/api/audio") {
         wss.handleUpgrade(request, socket, head, (ws) => {
