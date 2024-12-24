@@ -54,6 +54,7 @@ export default function TextInput ({
     let response: Message = await res.json()
     console.log(response)
     appendMsg(response)
+    
   }
 
   const updateMsg = (e: any) => {

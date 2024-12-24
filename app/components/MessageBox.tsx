@@ -3,9 +3,9 @@ import Markdown from "./markdown/markdown";
 
 function UserMsg({ msg }: { msg: string }) {
   return (
-    <div className="flex">
-      <span style={{ flexGrow: 1 }}></span>
-      <div className="markdown bg-gray-200 w-fit max-w-[80%] px-5 py-3 rounded-2xl">
+    <div className="flex mx-auto w-full max-w-[800px]">
+      <span className='flex flex-grow md:min-w-[100px] min-w-[3em]'></span>
+      <div className="markdown bg-gray-200 w-fit px-5 py-3 rounded-2xl">
         <Markdown>{msg}</Markdown>
       </div>
     </div>
@@ -14,11 +14,11 @@ function UserMsg({ msg }: { msg: string }) {
 
 function BotMsg({ msg }: { msg: string }) {
   return (
-    <div className="flex">
-      <div className="bg-white w-fit max-w-[80%] px-5 py-3 rounded-3xl border border-gray-500">
+    <div className="flex mx-auto w-full max-w-[800px]">
+      <div className="bg-white w-fit px-5 py-3 rounded-3xl border border-gray-500">
         <Markdown>{msg}</Markdown>
       </div>
-      <span style={{ flexGrow: 1 }}></span>
+      <span className='flex flex-grow min-w-[3em] md:min-w-[100px]'></span>
     </div>
   );
 }

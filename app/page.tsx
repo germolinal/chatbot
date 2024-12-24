@@ -37,7 +37,7 @@ export default function Home () {
       {/* These two  objects should occupy all the vertical screen left...
           but they grow too much vertically.
           They are supposed to allow scrolling inside them*/}
-      <div className='flex-grow overflow-y-scroll w-full max-w-[800px]'>
+      <div className='flex-grow overflow-y-scroll w-full'>
         {msgs.length > 0 && <MessagesBox msgs={msgs} />}
         {msgs.length === 0 && (
           <NoMessages llm={llm} context={context} appendMsg={appendMsg} />
