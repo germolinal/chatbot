@@ -13,6 +13,7 @@ export default function AudioInput ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
+  const audioObject = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     return () => {
@@ -23,6 +24,10 @@ export default function AudioInput ({
         const tracks = audioStream.getTracks()
         tracks.forEach(track => track.stop())
         setAudioStream(null)
+      }
+      if (audioObject.current) {
+        audioObject.current.pause()
+        audioObject.current = null
       }
     }
   }, [])
@@ -43,9 +48,12 @@ export default function AudioInput ({
         console.log('WebSocket connected')
       }
 
-      socketRef.current.onmessage = (e: any) => {
+      socketRef.current.onmessage = async (e: any) => {
         const msg: Message = JSON.parse(e.data)
         appendMsg(msg)
+        if (msg.audioContent) {
+          await playAudio(msg.audioContent)
+        }
       }
 
       // Get user's audio stream
@@ -71,6 +79,25 @@ export default function AudioInput ({
       setRecording(true)
     } catch (err) {
       console.error('Error accessing microphone:', err)
+    }
+  }
+
+  const playAudio = async (audioContent: string) => {
+    try {
+      const audio = new Audio()
+      audioObject.current = audio
+      // Convert base64 to a data URI
+      const dataUri = `data:audio/x-wav;base64,${audioContent}`
+      audio.src = dataUri
+      setPlaying(true)
+      await audio.play()
+
+      audio.onended = () => {
+        setPlaying(false)
+      }
+    } catch (err) {
+      console.error('Error during audio playback:', err)
+      setPlaying(false)
     }
   }
 

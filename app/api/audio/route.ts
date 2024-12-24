@@ -1,14 +1,23 @@
 // server.ts
 import { WebSocketServer, WebSocket } from "ws";
 import * as speech from '@google-cloud/speech';
+import * as tts from "@google-cloud/text-to-speech"
 import { Message } from "@/types/messages";
 import { getChat } from "../chat/route";
 import { NextResponse } from "next/server";
 
 const speechClient = new speech.SpeechClient();
+const ttsClient = new tts.TextToSpeechClient();
+
+
+const voices: any = {
+  'en-us': 'en-US-Journey-F',
+  'es-us': 'es-US-Journey-D'
+}
+
 
 interface SpeechRecognitionData {
-  language?: string;
+  languageCode?: string;
   transcript?: string;
 }
 
@@ -36,8 +45,8 @@ class SpeechToTextHandler {
       config: {
         encoding: 'WEBM_OPUS',
         sampleRateHertz: 48000,
-        languageCode: 'en-US',
-        alternativeLanguageCodes: ['en-US', 'es', 'es-CL']
+        languageCode: 'en-us',
+        alternativeLanguageCodes: ['en-us', 'es-us']
       },
       interimResults: false,
       singleUtterance: false,
@@ -48,6 +57,7 @@ class SpeechToTextHandler {
   private handleSpeechData(data: any): void {
     const recognitionData = this.extractRecognitionData(data);
     if (!recognitionData?.transcript) return;
+    console.log(recognitionData)
     this.processMessage(recognitionData)
 
   }
@@ -63,14 +73,14 @@ class SpeechToTextHandler {
     }
 
     return {
-      language: data.results[0].languageCode,
+      languageCode: data.results[0].languageCode,
       transcript: data.results[0].alternatives[0].transcript,
     };
   }
 
   private async processMessage(data: SpeechRecognitionData) {
 
-    const { transcript } = data;
+    const { languageCode, transcript } = data;
 
     const userMessage: Message = {
       origin: "user",
@@ -90,7 +100,28 @@ class SpeechToTextHandler {
             throw new Error(JSON.stringify(chatResponse))
           }
           const botMessage: Message = await chatResponse.json();
-          this.sendMessage(botMessage);
+
+
+
+          const request: any = {
+            input: { text: botMessage.msg },
+            // Select the language and SSML voice gender (optional)
+            voice: {
+              languageCode,
+              ssmlGender: 'SSML_VOICE_GENDER_UNSPECIFIED',
+              name: voices[languageCode!]
+            },
+            // select the type of audio encoding
+            audioConfig: { audioEncoding: 'LINEAR16', sampleRateHertz: 16000 },
+          };
+
+          const [response] = await ttsClient.synthesizeSpeech(request)
+
+
+          const audioContent = Buffer.from(response.audioContent!).toString('base64');
+
+
+          this.sendMessage({ audioContent, ...botMessage });
         } catch (e: any) {
           this.handleError('Error getting chat or parsing chat response', e)
         }
