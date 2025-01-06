@@ -52,15 +52,20 @@ export default function TextInput ({
       throw new Error(JSON.stringify(res))
     }
     let response: Message = await res.json()
-    console.log(response)
     appendMsg(response)
-    
   }
 
   const updateMsg = (e: any) => {
     let txt = e.target.value.trim()
     setValidMsg(txt.length !== 0)
     setMsg(txt)
+    if (e.key === 'Enter') {
+      e.target.value = txt
+    }
+  }
+
+  const enter = (e: any) => {
+    updateMsg(e)
     if (e.key === 'Enter') {
       send(e).then(r => {})
     }
@@ -70,6 +75,7 @@ export default function TextInput ({
     <div id='msgbox' className='w-full flex py-1 space-x-1 max-w-[800px]'>
       <div className='w-full flex flex-grow border border-gray-400 rounded-full px-5'>
         <textarea
+          onKeyDown={enter}
           className='h-fit w-full  leading-4 pt-4 resize-none outline-none'
           onKeyUp={updateMsg}
           placeholder='Message ChatGPT (ish)'
